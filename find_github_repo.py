@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import sys
 import re
 import argparse
 import urllib.request
@@ -37,7 +38,7 @@ def find_repos():
         parser = argparse.ArgumentParser()
         parser.add_argument('reponame', type=str, nargs=1)
         parser.add_argument('lang', type=str, nargs='?')
-        parser.add_argument('-c', help='max subpages count', type=int, nargs='?', default=1)
+        parser.add_argument('-c', help='max subpages count', type=int, nargs='?', default=1, choices=range(1, sys.maxsize))
         args = parser.parse_args()
 
         params = {'q': args.reponame[0], 'type': 'Repositories'}
