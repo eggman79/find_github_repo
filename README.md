@@ -3,7 +3,7 @@
 ```bash
 pip install -r requirements.txt
 ```
-##runing
+## runing
 ```bash
 python ./find_github_repo.py name [language] [-c=max_subpages]
 ```
