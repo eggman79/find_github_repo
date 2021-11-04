@@ -3,8 +3,9 @@
 import sys
 import re
 import argparse
+import logging
 import urllib.request
-from urllib.parse import quote
+from urllib.parse import quote, urljoin
 from bs4 import BeautifulSoup
 
 def check_has_next_page(soup):
@@ -17,7 +18,7 @@ def find_subpage_repos(params):
     repos = []
     uri_params = list(map(lambda key: f'{quote(key)}={quote(params[key])}', params))
     prefix_url = 'https://github.com'
-    url = urllib.parse.urljoin(prefix_url, f'search?{"&".join(uri_params)}')
+    url = urljoin(prefix_url, f'search?{"&".join(uri_params)}')
 
     with urllib.request.urlopen(url) as github_content:
         soup = BeautifulSoup(github_content.read(), 'html.parser')
@@ -28,17 +29,19 @@ def find_subpage_repos(params):
             if re.match(r'^\/(topics|features)\/', href):
                 continue
 
-            repo_url = urllib.parse.urljoin(prefix_url, href)
+            repo_url = urljoin(prefix_url, href)
             repos.append(repo_url)
 
         return (check_has_next_page(soup), repos)
 
 def find_repos():
     try:
+        logging.basicConfig(encoding='utf-8', level=logging.INFO)
+
         parser = argparse.ArgumentParser()
         parser.add_argument('reponame', type=str, nargs=1)
         parser.add_argument('lang', type=str, nargs='?')
-        parser.add_argument('-c', help='max subpages count', type=int, nargs='?', default=1, choices=range(1, sys.maxsize))
+        parser.add_argument('-c', help='max subpages count', type=int, nargs='?', default=1, choices=range(1, 10))
         args = parser.parse_args()
 
         params = {'q': args.reponame[0], 'type': 'Repositories'}
@@ -64,6 +67,6 @@ def find_repos():
     except (SystemExit, argparse.ArgumentError):
         pass
     except BaseException as ex:
-        print(ex)
+        logging.critical(ex)
 
 find_repos()
